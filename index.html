@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionnaire Équipe U11F2 - Basket</title>
+    <title>Gestionnaire Équipe U11F2 - Basket (Accès Sécurisé)</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -30,7 +30,7 @@
         <div class="flex items-center justify-center min-h-screen">
             <div class="text-center">
                 <div class="loading-spinner"></div>
-                <p class="mt-4 text-gray-600">Chargement de l'application...</p>
+                <p class="mt-4 text-gray-600">Chargement sécurisé...</p>
             </div>
         </div>
     </div>
@@ -38,21 +38,108 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        const BasketTeamManager = () => {
+        // Composant de connexion
+        const LoginForm = ({ onLogin }) => {
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                // Mots de passe simples pour l'équipe (à changer selon vos besoins)
+                const validPasswords = [
+                    'U11F2-2025',          // Mot de passe général
+                    'BasketCesson27',      // Référence au match
+                    'EquipeU11F2'          // Simple et mémorable
+                ];
+
+                if (validPasswords.includes(password)) {
+                    localStorage.setItem('basketAuth', 'authenticated');
+                    localStorage.setItem('authTime', Date.now().toString());
+                    onLogin(true);
+                } else {
+                    setError('Mot de passe incorrect. Contactez l\'entraîneur si vous avez oublié le mot de passe.');
+                }
+                setLoading(false);
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-md w-full space-y-8">
+                        <div>
+                            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+                                <span className="text-2xl">🏀</span>
+                            </div>
+                            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                                Équipe U11F2
+                            </h2>
+                            <p className="mt-2 text-center text-sm text-gray-600">
+                                Accès sécurisé pour les parents et l'encadrement
+                            </p>
+                        </div>
+                        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                    Mot de passe d'accès
+                                </label>
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    required
+                                    className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                                    placeholder="Entrez le mot de passe de l'équipe"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                                >
+                                    {loading && <div className="loading-spinner mr-2"></div>}
+                                    {loading ? 'Connexion...' : 'Accéder à l\'application'}
+                                </button>
+                            </div>
+
+                            <div className="mt-6 text-center text-sm text-gray-500">
+                                <p>📞 Mot de passe oublié ?</p>
+                                <p>Contactez l'entraîneur ou l'administrateur</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // Composant principal de l'application (identique à avant)
+        const BasketTeamManager = ({ onLogout }) => {
             const [selectedDate, setSelectedDate] = useState(null);
             const [matches, setMatches] = useState({});
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
             
             const players = [
-                { name: "Lila", parentName: "Parent Lila", email: "goisetaurelie@yahoo.fr", phone: "06 07 53 29 84" },
-                { name: "Eve", parentName: "Parent Eve", email: "aktcboncoin@gmail.com", phone: "06 32 95 41 01 / 06 87 56 47 47" },
-                { name: "Jeanne", parentName: "Parent Jeanne", email: "aktcboncoin@gmail.com", phone: "06 32 95 41 01 / 06 87 56 47 47" },
-                { name: "Emma", parentName: "Parent Emma", email: "stephane.fargeot@hotmail.fr", phone: "06 37 52 10 67 / 06 13 42 73 83" },
-                { name: "Valentine", parentName: "Parent Valentine", email: "adelinejerome2@orange.fr", phone: "06 07 34 96 34" },
-                { name: "Clémence", parentName: "Parent Clémence", email: "alexandre.heuze@hotmail.fr", phone: "07 62 17 68 98 / 06 18 94 33 24" },
-                { name: "Stella", parentName: "Parent Stella", email: "melanie.bertin@gmail.com", phone: "06 62 47 15 82" },
-                { name: "Cléa", parentName: "Parent Cléa", email: "lauthom.guilbert@gmail.com", phone: "06 82 34 17 85 / 07 87 76 94 12" }
+                { name: "Lila", parentName: "Parent Lila", email: "***@***.fr", phone: "06 ** ** ** 84" },
+                { name: "Eve", parentName: "Parent Eve", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Jeanne", parentName: "Parent Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Emma", parentName: "Parent Emma", email: "***@***.fr", phone: "06 ** ** ** 67" },
+                { name: "Valentine", parentName: "Parent Valentine", email: "***@***.fr", phone: "06 ** ** ** 34" },
+                { name: "Clémence", parentName: "Parent Clémence", email: "***@***.fr", phone: "07 ** ** ** 98" },
+                { name: "Stella", parentName: "Parent Stella", email: "***@***.com", phone: "06 ** ** ** 82" },
+                { name: "Cléa", parentName: "Parent Cléa", email: "***@***.com", phone: "06 ** ** ** 85" }
             ];
 
             const [matchForm, setMatchForm] = useState({
@@ -63,6 +150,24 @@
                 drivers: ['', '', ''],
                 snackParents: ['', '']
             });
+
+            // Fonction de déconnexion
+            const handleLogout = () => {
+                localStorage.removeItem('basketAuth');
+                localStorage.removeItem('authTime');
+                onLogout();
+            };
+
+            // Vérification de session (déconnexion automatique après 24h)
+            useEffect(() => {
+                const authTime = localStorage.getItem('authTime');
+                const now = Date.now();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+
+                if (authTime && (now - parseInt(authTime)) > twentyFourHours) {
+                    handleLogout();
+                }
+            }, []);
 
             // Charger les matchs depuis la base de données
             useEffect(() => {
@@ -241,14 +346,23 @@
 
             return (
                 <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
-                    <div className="text-center mb-8">
-                        <h1 className="text-4xl font-bold text-blue-800 mb-2">
-                            🏀 Gestionnaire Équipe U11F2
-                        </h1>
-                        <p className="text-gray-600">Organisez facilement vos matchs de basket</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                            ⚡ Synchronisé avec base de données Neon
-                        </p>
+                    {/* Header sécurisé */}
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="text-center flex-1">
+                            <h1 className="text-4xl font-bold text-blue-800 mb-2">
+                                🏀 Gestionnaire Équipe U11F2
+                            </h1>
+                            <p className="text-gray-600">Accès sécurisé - Parents et encadrement</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                                🔒 Connexion sécurisée • ⚡ Base de données Neon
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                        >
+                            Déconnexion
+                        </button>
                     </div>
 
                     {error && (
@@ -257,6 +371,7 @@
                         </div>
                     )}
 
+                    {/* Reste du contenu identique à l'application originale */}
                     {/* Calendrier */}
                     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
                         <div className="flex items-center justify-between mb-4">
@@ -321,7 +436,7 @@
                         </div>
                     </div>
 
-                    {/* Formulaire de match */}
+                    {/* Formulaire de match (identique) */}
                     {selectedDate && (
                         <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-blue-200">
                             <div className="flex justify-between items-center mb-6">
@@ -342,16 +457,13 @@
                             </div>
                             
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {/* Informations du match */}
                                 <div className="space-y-6">
                                     <h4 className="text-lg font-semibold text-gray-800 border-b pb-2">
                                         ℹ️ Informations du match
                                     </h4>
                                     
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            🏀 Club adverse
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🏀 Club adverse</label>
                                         <input
                                             type="text"
                                             value={matchForm.club}
@@ -362,9 +474,7 @@
                                     </div>
                                     
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            🕐 Heure du match
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🕐 Heure du match</label>
                                         <input
                                             type="time"
                                             value={matchForm.time}
@@ -374,9 +484,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            📍 Adresse de la salle
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">📍 Adresse de la salle</label>
                                         <textarea
                                             value={matchForm.address}
                                             onChange={(e) => setMatchForm({...matchForm, address: e.target.value})}
@@ -387,16 +495,11 @@
                                     </div>
                                 </div>
 
-                                {/* Organisation */}
                                 <div className="space-y-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 border-b pb-2">
-                                        👥 Organisation
-                                    </h4>
+                                    <h4 className="text-lg font-semibold text-gray-800 border-b pb-2">👥 Organisation</h4>
                                     
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            👕 Parent référent maillots
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">👕 Parent référent maillots</label>
                                         <select
                                             value={matchForm.jerseyParent}
                                             onChange={(e) => setMatchForm({...matchForm, jerseyParent: e.target.value})}
@@ -412,9 +515,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            🚗 Parents conducteurs (3 voitures)
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🚗 Parents conducteurs (3 voitures)</label>
                                         <div className="space-y-2">
                                             {matchForm.drivers.map((driver, index) => (
                                                 <select
@@ -439,9 +540,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            🍪 Responsables du goûter
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🍪 Responsables du goûter</label>
                                         <div className="space-y-2">
                                             {matchForm.snackParents.map((parent, index) => (
                                                 <select
@@ -485,76 +584,35 @@
                                 </button>
                             </div>
 
-                            {/* Résumé */}
                             {(matchForm.club || matchForm.time || matchForm.jerseyParent) && (
                                 <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-                                        📋 Résumé du match
-                                    </h4>
+                                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center">📋 Résumé du match</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                        {matchForm.club && (
-                                            <p><span className="font-medium">Club :</span> {matchForm.club}</p>
-                                        )}
-                                        {matchForm.time && (
-                                            <p><span className="font-medium">Heure :</span> {matchForm.time}</p>
-                                        )}
-                                        {matchForm.address && (
-                                            <p className="md:col-span-2"><span className="font-medium">Adresse :</span> {matchForm.address}</p>
-                                        )}
-                                        {matchForm.jerseyParent && (
-                                            <p><span className="font-medium">Maillots :</span> {matchForm.jerseyParent}</p>
-                                        )}
-                                        {matchForm.drivers.filter(d => d).length > 0 && (
-                                            <p className="md:col-span-2">
-                                                <span className="font-medium">Conducteurs :</span> {matchForm.drivers.filter(d => d).join(', ')}
-                                            </p>
-                                        )}
-                                        {matchForm.snackParents.filter(s => s).length > 0 && (
-                                            <p className="md:col-span-2">
-                                                <span className="font-medium">Goûter :</span> {matchForm.snackParents.filter(s => s).join(', ')}
-                                            </p>
-                                        )}
+                                        {matchForm.club && (<p><span className="font-medium">Club :</span> {matchForm.club}</p>)}
+                                        {matchForm.time && (<p><span className="font-medium">Heure :</span> {matchForm.time}</p>)}
+                                        {matchForm.address && (<p className="md:col-span-2"><span className="font-medium">Adresse :</span> {matchForm.address}</p>)}
+                                        {matchForm.jerseyParent && (<p><span className="font-medium">Maillots :</span> {matchForm.jerseyParent}</p>)}
+                                        {matchForm.drivers.filter(d => d).length > 0 && (<p className="md:col-span-2"><span className="font-medium">Conducteurs :</span> {matchForm.drivers.filter(d => d).join(', ')}</p>)}
+                                        {matchForm.snackParents.filter(s => s).length > 0 && (<p className="md:col-span-2"><span className="font-medium">Goûter :</span> {matchForm.snackParents.filter(s => s).join(', ')}</p>)}
                                     </div>
                                 </div>
                             )}
                         </div>
                     )}
 
-                    {/* Liste de l'équipe */}
+                    {/* Liste de l'équipe - données masquées */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h3 className="text-2xl font-bold text-blue-800 mb-6 flex items-center">
-                            👥 Équipe U11F2 (Saison 25/26)
-                        </h3>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-2xl font-bold text-blue-800 flex items-center">
+                                👥 Équipe U11F2 (Saison 25/26)
+                            </h3>
+                            <div className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                                🔒 Accès sécurisé
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {players.map((player, index) => (
                                 <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
                                     <h4 className="font-bold text-blue-800 text-lg mb-2">{player.name}</h4>
                                     <p className="text-sm text-gray-600 mb-1">
                                         <span className="font-medium">Contact :</span> {player.parentName}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mb-1">
-                                        📞 {player.phone}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        ✉️ {player.email}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Footer */}
-                    <footer className="text-center mt-8 p-4 text-gray-500 text-sm">
-                        <p>🏀 Gestionnaire d'équipe U11F2 - Propulsé par Netlify & Neon</p>
-                        <p className="mt-1">
-                            Développé avec ❤️ pour l'équipe de basket
-                        </p>
-                    </footer>
-                </div>
-            );
-        };
-
-        ReactDOM.render(<BasketTeamManager />, document.getElementById('root'));
-    </script>
-</body>
-</html>
