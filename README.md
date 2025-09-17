@@ -37,18 +37,7 @@ Cette application permet aux parents et entraîneurs de l'équipe U11F2 d'organi
 
 ## 👥 Équipe U11F2 (Saison 25/26)
 
-L'application gère les informations de contact pour toute l'équipe :
-
-| Joueuse | Contact Parent | Téléphone | Email |
-|---------|----------------|-----------|-------|
-| **Lila** | Parent Lila | 06 07 53 29 84 | goisetaurelie@yahoo.fr |
-| **Eve** | Parent Eve | 06 32 95 41 01 / 06 87 56 47 47 | aktcboncoin@gmail.com |
-| **Jeanne** | Parent Jeanne | 06 32 95 41 01 / 06 87 56 47 47 | aktcboncoin@gmail.com |
-| **Emma** | Parent Emma | 06 37 52 10 67 / 06 13 42 73 83 | stephane.fargeot@hotmail.fr |
-| **Valentine** | Parent Valentine | 06 07 34 96 34 | adelinejerome2@orange.fr |
-| **Clémence** | Parent Clémence | 07 62 17 68 98 / 06 18 94 33 24 | alexandre.heuze@hotmail.fr |
-| **Stella** | Parent Stella | 06 62 47 15 82 | melanie.bertin@gmail.com |
-| **Cléa** | Parent Cléa | 06 82 34 17 85 / 07 87 76 94 12 | lauthom.guilbert@gmail.com |
+L'application gère les informations de contact pour toute l'équipe 
 
 ## 🛠️ Technologies utilisées
 
