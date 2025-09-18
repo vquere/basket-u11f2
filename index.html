@@ -6,7 +6,6 @@
     <title>Gestionnaire Équipe U11F2 - Basket</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading-spinner {
@@ -35,119 +34,72 @@
         </div>
     </div>
 
-    <script type="text/babel">
+    <script>
         const { useState, useEffect } = React;
 
-        // Composant de connexion
-        const LoginScreen = ({ onLogin }) => {
+        const PasswordProtection = ({ onAuth }) => {
             const [password, setPassword] = useState('');
             const [error, setError] = useState('');
-            const [loading, setLoading] = useState(false);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
-                setLoading(true);
-                setError('');
-
-                // Mots de passe simples pour l'équipe
-                const validPasswords = [
-                    'U11F2-2025',
-                    'BasketCesson', 
-                    'EquipeU11F2'
-                ];
-
-                setTimeout(() => {
-                    if (validPasswords.includes(password)) {
-                        localStorage.setItem('basketAuth', 'authenticated');
-                        localStorage.setItem('authTime', Date.now().toString());
-                        onLogin();
-                    } else {
-                        setError('Mot de passe incorrect. Contactez l\'entraîneur si nécessaire.');
-                    }
-                    setLoading(false);
-                }, 500);
+                if (password === 'basket2025') {
+                    onAuth(true);
+                } else {
+                    setError('Mot de passe incorrect');
+                    setPassword('');
+                }
             };
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
-                    <div className="max-w-md w-full">
-                        <div className="bg-white rounded-xl shadow-lg p-8">
-                            <div className="text-center mb-8">
-                                <div className="mx-auto h-16 w-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
-                                    <span className="text-3xl text-white">🏀</span>
-                                </div>
-                                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                                    Équipe U11F2
-                                </h1>
-                                <p className="text-gray-600">
-                                    Accès sécurisé pour les parents et l'encadrement
-                                </p>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Mot de passe d'équipe
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                        placeholder="Entrez le mot de passe"
-                                        required
-                                    />
-                                </div>
-
-                                {error && (
-                                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <div className="loading-spinner mr-2"></div>
-                                            Connexion...
-                                        </>
-                                    ) : (
-                                        'Accéder à l\'application'
-                                    )}
-                                </button>
-                            </form>
-
-                            <div className="mt-6 text-center text-sm text-gray-500">
-                                <p>📞 Mot de passe oublié ?</p>
-                                <p>Contactez Vincent (entraîneur)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            return React.createElement('div', { className: 'min-h-screen bg-gray-50 flex items-center justify-center' },
+                React.createElement('div', { className: 'bg-white p-8 rounded-lg shadow-lg w-full max-w-md' },
+                    React.createElement('div', { className: 'text-center mb-6' },
+                        React.createElement('h1', { className: 'text-2xl font-bold text-blue-800 mb-2' },
+                            '🏀 Gestionnaire Équipe U11F2'
+                        ),
+                        React.createElement('p', { className: 'text-gray-600' }, 'Accès protégé')
+                    ),
+                    React.createElement('form', { onSubmit: handleSubmit },
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' },
+                                'Mot de passe'
+                            ),
+                            React.createElement('input', {
+                                type: 'password',
+                                value: password,
+                                onChange: (e) => setPassword(e.target.value),
+                                className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                placeholder: 'Entrez le mot de passe',
+                                required: true
+                            })
+                        ),
+                        error && React.createElement('div', { className: 'mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm' },
+                            error
+                        ),
+                        React.createElement('button', {
+                            type: 'submit',
+                            className: 'w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium'
+                        }, 'Accéder')
+                    )
+                )
             );
         };
 
-        // Composant principal de l'application
-        const BasketTeamManager = ({ onLogout }) => {
+        const BasketTeamManager = () => {
             const [selectedDate, setSelectedDate] = useState(null);
             const [matches, setMatches] = useState({});
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
             
-            // Vraies informations de l'équipe (non masquées)
             const players = [
-                { name: "Lila", parentName: "Parent Lila", email: "parent.lila@email.com", phone: "06 12 34 56 84" },
-                { name: "Eve", parentName: "Parent Eve", email: "parent.eve@email.com", phone: "06 98 76 54 01" },
-                { name: "Jeanne", parentName: "Parent Jeanne", email: "parent.jeanne@email.com", phone: "06 11 22 33 01" },
-                { name: "Emma", parentName: "Parent Emma", email: "parent.emma@email.com", phone: "06 55 44 33 67" },
-                { name: "Valentine", parentName: "Parent Valentine", email: "parent.valentine@email.com", phone: "06 77 88 99 34" },
-                { name: "Clémence", parentName: "Parent Clémence", email: "parent.clemence@email.com", phone: "07 12 34 56 98" },
-                { name: "Stella", parentName: "Parent Stella", email: "parent.stella@email.com", phone: "06 66 55 44 82" },
-                { name: "Cléa", parentName: "Parent Cléa", email: "parent.clea@email.com", phone: "06 33 22 11 85" }
+                { name: "Lila", parentName: "Parent Lila", email: "***@***.fr", phone: "06 ** ** ** 84" },
+                { name: "Eve", parentName: "Parent Eve", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Jeanne", parentName: "Parent Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Emma", parentName: "Parent Emma", email: "***@***.fr", phone: "06 ** ** ** 67" },
+                { name: "Valentine", parentName: "Parent Valentine", email: "***@***.fr", phone: "06 ** ** ** 34" },
+                { name: "Clémence", parentName: "Parent Clémence", email: "***@***.fr", phone: "07 ** ** ** 98" },
+                { name: "Stella", parentName: "Parent Stella", email: "***@***.com", phone: "06 ** ** ** 82" },
+                { name: "Cléa", parentName: "Parent Cléa", email: "***@***.com", phone: "06 ** ** ** 85" }
             ];
 
             const [matchForm, setMatchForm] = useState({
@@ -158,24 +110,6 @@
                 drivers: ['', '', ''],
                 snackParents: ['', '']
             });
-
-            // Vérifier l'expiration de session (24h)
-            useEffect(() => {
-                const authTime = localStorage.getItem('authTime');
-                if (authTime) {
-                    const now = Date.now();
-                    const twentyFourHours = 24 * 60 * 60 * 1000;
-                    if ((now - parseInt(authTime)) > twentyFourHours) {
-                        handleLogout();
-                    }
-                }
-            }, []);
-
-            const handleLogout = () => {
-                localStorage.removeItem('basketAuth');
-                localStorage.removeItem('authTime');
-                onLogout();
-            };
 
             // Charger les matchs depuis la base de données
             useEffect(() => {
@@ -260,7 +194,7 @@
                         // Feedback visuel de succès
                         const successMsg = document.createElement('div');
                         successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-                        successMsg.textContent = '✅ Match sauvegardé avec succès !';
+                        successMsg.textContent = 'Match sauvegardé avec succès !';
                         document.body.appendChild(successMsg);
                         setTimeout(() => successMsg.remove(), 3000);
                     } else {
@@ -354,23 +288,15 @@
 
             return (
                 <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
-                    {/* Header avec déconnexion */}
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="text-center flex-1">
-                            <h1 className="text-4xl font-bold text-blue-800 mb-2">
-                                🏀 Gestionnaire Équipe U11F2
-                            </h1>
-                            <p className="text-gray-600">Organisation des matchs - Accès sécurisé</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                                🔒 Session protégée • ⚡ Base de données Neon
-                            </p>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                            🚪 Déconnexion
-                        </button>
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-blue-800 mb-2">
+                            🏀 Gestionnaire Équipe U11F2
+                        </h1>
+                        <p className="text-gray-600">Organisation des matchs - Parents et encadrement</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            ⚡ Base de données Neon • 🔄 Sauvegarde automatique
+                        </p>
                     </div>
 
                     {error && (
@@ -607,15 +533,12 @@
                         </div>
                     )}
 
-                    {/* Liste de l'équipe avec vraies infos */}
+                    {/* Liste de l'équipe */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-2xl font-bold text-blue-800 flex items-center">
                                 👥 Équipe U11F2 (Saison 25/26)
                             </h3>
-                            <div className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                                🔒 Contacts sécurisés
-                            </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {players.map((player, index) => (
@@ -625,11 +548,46 @@
                                         <span className="font-medium">Contact :</span> {player.parentName}
                                     </p>
                                     <p className="text-sm text-gray-600 mb-1">
-                                        <span className="font-medium">Email :</span> 
-                                        <a href={`mailto:${player.email}`} className="text-blue-600 hover:underline ml-1">
-                                            {player.email}
-                                        </a>
+                                        <span className="font-medium">Email :</span> {player.email}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                        <span className="font-medium">Tél :</span>
-                                        <a href={`tel:${player.
+                                        <span className="font-medium">Tél :</span> {player.phone}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+            if (!isAuthenticated) {
+                return React.createElement(PasswordProtection, { onAuth: setIsAuthenticated });
+            }
+
+            return React.createElement(BasketTeamManager);
+        };
+
+        // Ensure React renders properly
+        try {
+            ReactDOM.render(React.createElement(App), document.getElementById('root'));
+        } catch (error) {
+            console.error('React rendering error:', error);
+            document.getElementById('root').innerHTML = `
+                <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+                        <h1 class="text-2xl font-bold text-red-600 mb-4">Erreur de chargement</h1>
+                        <p class="text-gray-600 mb-4">Une erreur s'est produite lors du chargement de l'application.</p>
+                        <button onclick="location.reload()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                            Recharger la page
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
