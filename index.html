@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionnaire Équipe U11F2 - Basket (Accès Sécurisé)</title>
+    <title>Gestionnaire Équipe U11F2 - Basket</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -30,7 +30,7 @@
         <div class="flex items-center justify-center min-h-screen">
             <div class="text-center">
                 <div class="loading-spinner"></div>
-                <p class="mt-4 text-gray-600">Chargement sécurisé...</p>
+                <p class="mt-4 text-gray-600">Chargement...</p>
             </div>
         </div>
     </div>
@@ -38,94 +38,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Composant de connexion
-        const LoginForm = ({ onLogin }) => {
-            const [password, setPassword] = useState('');
-            const [error, setError] = useState('');
-            const [loading, setLoading] = useState(false);
-
-            const handleLogin = async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                setError('');
-
-                // Mots de passe simples pour l'équipe (à changer selon vos besoins)
-                const validPasswords = [
-                    'U11F2-2025',          // Mot de passe général
-                    'BasketCesson27',      // Référence au match
-                    'EquipeU11F2'          // Simple et mémorable
-                ];
-
-                if (validPasswords.includes(password)) {
-                    localStorage.setItem('basketAuth', 'authenticated');
-                    localStorage.setItem('authTime', Date.now().toString());
-                    onLogin(true);
-                } else {
-                    setError('Mot de passe incorrect. Contactez l\'entraîneur si vous avez oublié le mot de passe.');
-                }
-                setLoading(false);
-            };
-
-            return (
-                <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-md w-full space-y-8">
-                        <div>
-                            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-                                <span className="text-2xl">🏀</span>
-                            </div>
-                            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                                Équipe U11F2
-                            </h2>
-                            <p className="mt-2 text-center text-sm text-gray-600">
-                                Accès sécurisé pour les parents et l'encadrement
-                            </p>
-                        </div>
-                        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-                            <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                    Mot de passe d'accès
-                                </label>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                    placeholder="Entrez le mot de passe de l'équipe"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                                    {error}
-                                </div>
-                            )}
-
-                            <div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                                >
-                                    {loading && <div className="loading-spinner mr-2"></div>}
-                                    {loading ? 'Connexion...' : 'Accéder à l\'application'}
-                                </button>
-                            </div>
-
-                            <div className="mt-6 text-center text-sm text-gray-500">
-                                <p>📞 Mot de passe oublié ?</p>
-                                <p>Contactez l'entraîneur ou l'administrateur</p>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            );
-        };
-
-        // Composant principal de l'application (identique à avant)
-        const BasketTeamManager = ({ onLogout }) => {
+        const BasketTeamManager = () => {
             const [selectedDate, setSelectedDate] = useState(null);
             const [matches, setMatches] = useState({});
             const [loading, setLoading] = useState(false);
@@ -150,24 +63,6 @@
                 drivers: ['', '', ''],
                 snackParents: ['', '']
             });
-
-            // Fonction de déconnexion
-            const handleLogout = () => {
-                localStorage.removeItem('basketAuth');
-                localStorage.removeItem('authTime');
-                onLogout();
-            };
-
-            // Vérification de session (déconnexion automatique après 24h)
-            useEffect(() => {
-                const authTime = localStorage.getItem('authTime');
-                const now = Date.now();
-                const twentyFourHours = 24 * 60 * 60 * 1000;
-
-                if (authTime && (now - parseInt(authTime)) > twentyFourHours) {
-                    handleLogout();
-                }
-            }, []);
 
             // Charger les matchs depuis la base de données
             useEffect(() => {
@@ -346,23 +241,15 @@
 
             return (
                 <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
-                    {/* Header sécurisé */}
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="text-center flex-1">
-                            <h1 className="text-4xl font-bold text-blue-800 mb-2">
-                                🏀 Gestionnaire Équipe U11F2
-                            </h1>
-                            <p className="text-gray-600">Accès sécurisé - Parents et encadrement</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                                🔒 Connexion sécurisée • ⚡ Base de données Neon
-                            </p>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                            Déconnexion
-                        </button>
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-blue-800 mb-2">
+                            🏀 Gestionnaire Équipe U11F2
+                        </h1>
+                        <p className="text-gray-600">Organisation des matchs - Parents et encadrement</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            ⚡ Base de données Neon • 🔄 Sauvegarde automatique
+                        </p>
                     </div>
 
                     {error && (
@@ -371,7 +258,6 @@
                         </div>
                     )}
 
-                    {/* Reste du contenu identique à l'application originale */}
                     {/* Calendrier */}
                     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
                         <div className="flex items-center justify-between mb-4">
@@ -436,7 +322,7 @@
                         </div>
                     </div>
 
-                    {/* Formulaire de match (identique) */}
+                    {/* Formulaire de match */}
                     {selectedDate && (
                         <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-blue-200">
                             <div className="flex justify-between items-center mb-6">
@@ -600,15 +486,12 @@
                         </div>
                     )}
 
-                    {/* Liste de l'équipe - données masquées */}
+                    {/* Liste de l'équipe */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-2xl font-bold text-blue-800 flex items-center">
                                 👥 Équipe U11F2 (Saison 25/26)
                             </h3>
-                            <div className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                                🔒 Accès sécurisé
-                            </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {players.map((player, index) => (
@@ -616,3 +499,23 @@
                                     <h4 className="font-bold text-blue-800 text-lg mb-2">{player.name}</h4>
                                     <p className="text-sm text-gray-600 mb-1">
                                         <span className="font-medium">Contact :</span> {player.parentName}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-1">
+                                        <span className="font-medium">Email :</span> {player.email}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-medium">Tél :</span> {player.phone}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Rendu direct de l'application sans authentification
+        ReactDOM.render(<BasketTeamManager />, document.getElementById('root'));
+    </script>
+</body>
+</html>
