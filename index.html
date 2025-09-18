@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire Équipe U11F2 - Basket</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center">
+                <div class="loading-spinner"></div>
+                <p class="mt-4 text-gray-600">Chargement...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { useState, useEffect } = React;
+
+        const PasswordProtection = ({ onAuth }) => {
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (password === 'basket2025') {
+                    onAuth(true);
+                } else {
+                    setError('Mot de passe incorrect');
+                    setPassword('');
+                }
+            };
+
+            return React.createElement('div', { className: 'min-h-screen bg-gray-50 flex items-center justify-center' },
+                React.createElement('div', { className: 'bg-white p-8 rounded-lg shadow-lg w-full max-w-md' },
+                    React.createElement('div', { className: 'text-center mb-6' },
+                        React.createElement('h1', { className: 'text-2xl font-bold text-blue-800 mb-2' },
+                            '🏀 Gestionnaire Équipe U11F2'
+                        ),
+                        React.createElement('p', { className: 'text-gray-600' }, 'Accès protégé')
+                    ),
+                    React.createElement('form', { onSubmit: handleSubmit },
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' },
+                                'Mot de passe'
+                            ),
+                            React.createElement('input', {
+                                type: 'password',
+                                value: password,
+                                onChange: (e) => setPassword(e.target.value),
+                                className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                placeholder: 'Entrez le mot de passe',
+                                required: true
+                            })
+                        ),
+                        error && React.createElement('div', { className: 'mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm' },
+                            error
+                        ),
+                        React.createElement('button', {
+                            type: 'submit',
+                            className: 'w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium'
+                        }, 'Accéder')
+                    )
+                )
+            );
+        };
+
+        const BasketTeamManager = () => {
+            const [selectedDate, setSelectedDate] = useState(null);
+            const [matches, setMatches] = useState({});
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            
+            const players = [
+                { name: "Lila", parentName: "Parent Lila", email: "***@***.fr", phone: "06 ** ** ** 84" },
+                { name: "Eve", parentName: "Parent Eve", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Jeanne", parentName: "Parent Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
+                { name: "Emma", parentName: "Parent Emma", email: "***@***.fr", phone: "06 ** ** ** 67" },
+                { name: "Valentine", parentName: "Parent Valentine", email: "***@***.fr", phone: "06 ** ** ** 34" },
+                { name: "Clémence", parentName: "Parent Clémence", email: "***@***.fr", phone: "07 ** ** ** 98" },
+                { name: "Stella", parentName: "Parent Stella", email: "***@***.com", phone: "06 ** ** ** 82" },
+                { name: "Cléa", parentName: "Parent Cléa", email: "***@***.com", phone: "06 ** ** ** 85" }
+            ];
+
+            const [matchForm, setMatchForm] = useState({
+                club: '',
+                address: '',
+                time: '',
+                jerseyParent: '',
+                drivers: ['', '', ''],
+                snackParents: ['', '']
+            });
+
+            // Charger les matchs depuis la base de données
+            useEffect(() => {
+                loadMatches();
+                initializeDatabase();
+            }, []);
+
+            const initializeDatabase = async () => {
+                try {
+                    const response = await fetch('/api/init-db', {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        console.warn('Initialisation DB échouée, mais l\'app peut continuer');
+                    }
+                } catch (error) {
+                    console.warn('Erreur init DB:', error);
+                }
+            };
+
+            const loadMatches = async () => {
+                try {
+                    const response = await fetch('/api/matches');
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        setMatches(data.matches || {});
+                    } else {
+                        // Si l'API n'est pas disponible, utilise des données locales
+                        setMatches({
+                            '2025-09-27': {
+                                club: 'OC Cesson',
+                                address: 'ESB - 49 avenue de Dezerseul - Cesson Sévigné',
+                                time: '',
+                                jerseyParent: '',
+                                drivers: ['', '', ''],
+                                snackParents: ['', '']
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement des matchs:', error);
+                    // Données par défaut en cas d'erreur
+                    setMatches({
+                        '2025-09-27': {
+                            club: 'OC Cesson',
+                            address: 'ESB - 49 avenue de Dezerseul - Cesson Sévigné',
+                            time: '',
+                            jerseyParent: '',
+                            drivers: ['', '', ''],
+                            snackParents: ['', '']
+                        }
+                    });
+                }
+            };
+
+            const saveMatch = async () => {
+                if (!selectedDate) return;
+                
+                setLoading(true);
+                setError('');
+                
+                try {
+                    const response = await fetch('/api/matches', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            date: selectedDate,
+                            matchData: matchForm
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        setMatches(prev => ({
+                            ...prev,
+                            [selectedDate]: matchForm
+                        }));
+                        setError('');
+                        // Feedback visuel de succès
+                        const successMsg = document.createElement('div');
+                        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                        successMsg.textContent = 'Match sauvegardé avec succès !';
+                        document.body.appendChild(successMsg);
+                        setTimeout(() => successMsg.remove(), 3000);
+                    } else {
+                        throw new Error('Erreur de sauvegarde');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la sauvegarde:', error);
+                    setError('Erreur lors de la sauvegarde. Les données sont conservées localement.');
+                    // Sauvegarde locale en cas d'échec
+                    setMatches(prev => ({
+                        ...prev,
+                        [selectedDate]: matchForm
+                    }));
+                }
+                setLoading(false);
+            };
+
+            const getCurrentDate = () => {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                return `${year}-${month}`;
+            };
+
+            const [currentMonth, setCurrentMonth] = useState(getCurrentDate());
+
+            const getDaysInMonth = (dateStr) => {
+                const [year, month] = dateStr.split('-').map(Number);
+                const firstDay = new Date(year, month - 1, 1);
+                const lastDay = new Date(year, month, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDayOfWeek = firstDay.getDay();
+                
+                return { daysInMonth, startingDayOfWeek };
+            };
+
+            const formatDateKey = (day) => {
+                const [year, month] = currentMonth.split('-');
+                return `${year}-${month.padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            };
+
+            const handleDateClick = (day) => {
+                const dateKey = formatDateKey(day);
+                
+                // Pour l'instant, seul le 27 septembre 2025 est cliquable
+                if (dateKey !== '2025-09-27') {
+                    return;
+                }
+                
+                setSelectedDate(dateKey);
+                
+                if (matches[dateKey]) {
+                    setMatchForm(matches[dateKey]);
+                } else {
+                    setMatchForm({
+                        club: 'OC Cesson',
+                        address: 'ESB - 49 avenue de Dezerseul - Cesson Sévigné',
+                        time: '',
+                        jerseyParent: '',
+                        drivers: ['', '', ''],
+                        snackParents: ['', '']
+                    });
+                }
+            };
+
+            const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
+            
+            const monthNames = [
+                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+            ];
+            
+            const [year, month] = currentMonth.split('-').map(Number);
+            const monthName = monthNames[month - 1];
+
+            const changeMonth = (direction) => {
+                const [year, month] = currentMonth.split('-').map(Number);
+                let newMonth = month + direction;
+                let newYear = year;
+                
+                if (newMonth > 12) {
+                    newMonth = 1;
+                    newYear++;
+                } else if (newMonth < 1) {
+                    newMonth = 12;
+                    newYear--;
+                }
+                
+                setCurrentMonth(`${newYear}-${String(newMonth).padStart(2, '0')}`);
+            };
+
+            return (
+                <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-blue-800 mb-2">
+                            🏀 Gestionnaire Équipe U11F2
+                        </h1>
+                        <p className="text-gray-600">Organisation des matchs - Parents et encadrement</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            ⚡ Base de données Neon • 🔄 Sauvegarde automatique
+                        </p>
+                    </div>
+
+                    {error && (
+                        <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+                            ⚠️ {error}
+                        </div>
+                    )}
+
+                    {/* Calendrier */}
+                    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <button 
+                                onClick={() => changeMonth(-1)}
+                                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            >
+                                ←
+                            </button>
+                            <h2 className="text-2xl font-bold text-blue-800">
+                                {monthName} {year}
+                            </h2>
+                            <button 
+                                onClick={() => changeMonth(1)}
+                                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            >
+                                →
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-7 gap-2 mb-2">
+                            {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
+                                <div key={day} className="text-center font-semibold p-2 text-gray-700">
+                                    {day}
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="grid grid-cols-7 gap-2">
+                            {Array.from({ length: startingDayOfWeek === 0 ? 0 : startingDayOfWeek }, (_, i) => (
+                                <div key={`empty-${i}`} className="p-2"></div>
+                            ))}
+                            
+                            {Array.from({ length: daysInMonth }, (_, i) => {
+                                const day = i + 1;
+                                const dateKey = formatDateKey(day);
+                                const hasMatch = matches[dateKey];
+                                const isClickable = dateKey === '2025-09-27';
+                                
+                                return (
+                                    <button
+                                        key={day}
+                                        onClick={() => handleDateClick(day)}
+                                        disabled={!isClickable}
+                                        className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
+                                            hasMatch 
+                                                ? 'bg-blue-100 border-blue-500 text-blue-800 font-semibold shadow-md' 
+                                                : isClickable
+                                                ? 'border-gray-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer'
+                                                : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        <div className="font-medium">{day}</div>
+                                        {hasMatch && (
+                                            <div className="text-xs text-blue-600 mt-1">
+                                                🏀 Match
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Formulaire de match */}
+                    {selectedDate && (
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-blue-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold text-blue-800 flex items-center">
+                                    📅 Match du {new Date(selectedDate + 'T00:00:00').toLocaleDateString('fr-FR', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </h3>
+                                <button
+                                    onClick={() => setSelectedDate(null)}
+                                    className="text-gray-500 hover:text-gray-700 text-2xl font-bold hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div className="space-y-6">
+                                    <h4 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                                        ℹ️ Informations du match
+                                    </h4>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🏀 Club adverse</label>
+                                        <input
+                                            type="text"
+                                            value={matchForm.club}
+                                            onChange={(e) => setMatchForm({...matchForm, club: e.target.value})}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Nom du club adverse"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🕐 Heure du match</label>
+                                        <input
+                                            type="time"
+                                            value={matchForm.time}
+                                            onChange={(e) => setMatchForm({...matchForm, time: e.target.value})}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">📍 Adresse de la salle</label>
+                                        <textarea
+                                            value={matchForm.address}
+                                            onChange={(e) => setMatchForm({...matchForm, address: e.target.value})}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Adresse complète de la salle"
+                                            rows="2"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <h4 className="text-lg font-semibold text-gray-800 border-b pb-2">👥 Organisation</h4>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">👕 Parent référent maillots</label>
+                                        <select
+                                            value={matchForm.jerseyParent}
+                                            onChange={(e) => setMatchForm({...matchForm, jerseyParent: e.target.value})}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="">Sélectionner un parent</option>
+                                            {players.map((player, index) => (
+                                                <option key={index} value={player.parentName}>
+                                                    {player.parentName} ({player.name})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🚗 Parents conducteurs (3 voitures)</label>
+                                        <div className="space-y-2">
+                                            {matchForm.drivers.map((driver, index) => (
+                                                <select
+                                                    key={index}
+                                                    value={driver}
+                                                    onChange={(e) => {
+                                                        const newDrivers = [...matchForm.drivers];
+                                                        newDrivers[index] = e.target.value;
+                                                        setMatchForm({...matchForm, drivers: newDrivers});
+                                                    }}
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Voiture {index + 1} - Sélectionner un parent</option>
+                                                    {players.map((player, playerIndex) => (
+                                                        <option key={playerIndex} value={player.parentName}>
+                                                            {player.parentName} ({player.name})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">🍪 Responsables du goûter</label>
+                                        <div className="space-y-2">
+                                            {matchForm.snackParents.map((parent, index) => (
+                                                <select
+                                                    key={index}
+                                                    value={parent}
+                                                    onChange={(e) => {
+                                                        const newSnackParents = [...matchForm.snackParents];
+                                                        newSnackParents[index] = e.target.value;
+                                                        setMatchForm({...matchForm, snackParents: newSnackParents});
+                                                    }}
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Responsable goûter {index + 1}</option>
+                                                    {players.map((player, playerIndex) => (
+                                                        <option key={playerIndex} value={player.parentName}>
+                                                            {player.parentName} ({player.name})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center mt-8 pt-6 border-t">
+                                <button
+                                    onClick={() => setSelectedDate(null)}
+                                    className="px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Fermer
+                                </button>
+                                
+                                <button
+                                    onClick={saveMatch}
+                                    disabled={loading}
+                                    className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+                                >
+                                    {loading && <div className="loading-spinner mr-2"></div>}
+                                    {loading ? 'Sauvegarde...' : 'Enregistrer'}
+                                </button>
+                            </div>
+
+                            {(matchForm.club || matchForm.time || matchForm.jerseyParent) && (
+                                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center">📋 Résumé du match</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                        {matchForm.club && (<p><span className="font-medium">Club :</span> {matchForm.club}</p>)}
+                                        {matchForm.time && (<p><span className="font-medium">Heure :</span> {matchForm.time}</p>)}
+                                        {matchForm.address && (<p className="md:col-span-2"><span className="font-medium">Adresse :</span> {matchForm.address}</p>)}
+                                        {matchForm.jerseyParent && (<p><span className="font-medium">Maillots :</span> {matchForm.jerseyParent}</p>)}
+                                        {matchForm.drivers.filter(d => d).length > 0 && (<p className="md:col-span-2"><span className="font-medium">Conducteurs :</span> {matchForm.drivers.filter(d => d).join(', ')}</p>)}
+                                        {matchForm.snackParents.filter(s => s).length > 0 && (<p className="md:col-span-2"><span className="font-medium">Goûter :</span> {matchForm.snackParents.filter(s => s).join(', ')}</p>)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Liste de l'équipe */}
+                    <div className="bg-white rounded-lg shadow-lg p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-2xl font-bold text-blue-800 flex items-center">
+                                👥 Équipe U11F2 (Saison 25/26)
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {players.map((player, index) => (
+                                <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
+                                    <h4 className="font-bold text-blue-800 text-lg mb-2">{player.name}</h4>
+                                    <p className="text-sm text-gray-600 mb-1">
+                                        <span className="font-medium">Contact :</span> {player.parentName}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-1">
+                                        <span className="font-medium">Email :</span> {player.email}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-medium">Tél :</span> {player.phone}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+            if (!isAuthenticated) {
+                return React.createElement(PasswordProtection, { onAuth: setIsAuthenticated });
+            }
+
+            return React.createElement(BasketTeamManager);
+        };
+
+        // Ensure React renders properly
+        try {
+            ReactDOM.render(React.createElement(App), document.getElementById('root'));
+        } catch (error) {
+            console.error('React rendering error:', error);
+            document.getElementById('root').innerHTML = `
+                <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+                        <h1 class="text-2xl font-bold text-red-600 mb-4">Erreur de chargement</h1>
+                        <p class="text-gray-600 mb-4">Une erreur s'est produite lors du chargement de l'application.</p>
+                        <button onclick="location.reload()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                            Recharger la page
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
