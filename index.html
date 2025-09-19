@@ -160,8 +160,8 @@
 
                 const players = [
                     { name: "Lila", parentName: "Parent Lila", email: "***@***.fr", phone: "06 ** ** ** 84" },
-                    { name: "Eve", parentName: "Parent Eve", email: "***@***.com", phone: "06 ** ** ** 01" },
-                    { name: "Jeanne", parentName: "Parent Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
+                    { name: "Eve", parentName: "Parents Eve & Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
+                    { name: "Jeanne", parentName: "Parents Eve & Jeanne", email: "***@***.com", phone: "06 ** ** ** 01" },
                     { name: "Emma", parentName: "Parent Emma", email: "***@***.fr", phone: "06 ** ** ** 67" },
                     { name: "Valentine", parentName: "Parent Valentine", email: "***@***.fr", phone: "06 ** ** ** 34" },
                     { name: "Clémence", parentName: "Parent Clémence", email: "***@***.fr", phone: "07 ** ** ** 98" },
@@ -549,9 +549,9 @@
                                         className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                     },
                                         React.createElement('option', { value: '' }, 'Sélectionner un parent'),
-                                        players.map((player, index) =>
-                                            React.createElement('option', { key: index, value: player.parentName },
-                                                player.parentName
+                                        [...new Set(players.map(player => player.parentName))].map((parentName, index) =>
+                                            React.createElement('option', { key: index, value: parentName },
+                                                parentName
                                             )
                                         )
                                     )
@@ -572,9 +572,9 @@
                                                 className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                             },
                                                 React.createElement('option', { value: '' }, `Voiture ${index + 1} - Sélectionner un parent`),
-                                                players.map((player, playerIndex) =>
-                                                    React.createElement('option', { key: playerIndex, value: player.parentName },
-                                                        player.parentName
+                                                [...new Set(players.map(player => player.parentName))].map((parentName, playerIndex) =>
+                                                    React.createElement('option', { key: playerIndex, value: parentName },
+                                                        parentName
                                                     )
                                                 )
                                             )
@@ -597,9 +597,9 @@
                                                 className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                             },
                                                 React.createElement('option', { value: '' }, `Responsable goûter ${index + 1}`),
-                                                players.map((player, playerIndex) =>
-                                                    React.createElement('option', { key: playerIndex, value: player.parentName },
-                                                        player.parentName
+                                                [...new Set(players.map(player => player.parentName))].map((parentName, playerIndex) =>
+                                                    React.createElement('option', { key: playerIndex, value: parentName },
+                                                        parentName
                                                     )
                                                 )
                                             )
