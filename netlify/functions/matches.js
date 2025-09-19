@@ -12,24 +12,27 @@ const sql = neon(process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABAS
 // Initialize database tables
 async function initializeDatabase() {
   try {
-    // Create matches table if it doesn't exist
+    // Drop existing table if it exists (to fix column naming issues)
+    await sql`DROP TABLE IF EXISTS matches`;
+
+    // Create matches table with correct column names
     await sql`
-      CREATE TABLE IF NOT EXISTS matches (
+      CREATE TABLE matches (
         id SERIAL PRIMARY KEY,
-        game_key VARCHAR(10) UNIQUE NOT NULL,
+        gamekey VARCHAR(10) UNIQUE NOT NULL,
         club VARCHAR(255),
         address TEXT,
         time VARCHAR(10),
-        jersey_parent VARCHAR(255),
+        jerseyparent VARCHAR(255),
         drivers JSONB,
-        snack_parents JSONB,
+        snackparents JSONB,
         attendance JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
 
-    console.log('Database initialized successfully');
+    console.log('Database initialized successfully with correct schema');
   } catch (error) {
     console.error('Database initialization error:', error);
     throw error;
@@ -60,19 +63,19 @@ exports.handler = async (event, context) => {
     if (event.httpMethod === 'GET') {
       // Get all matches
       const matches = await sql`
-        SELECT * FROM matches ORDER BY game_key
+        SELECT * FROM matches ORDER BY gamekey
       `;
 
       // Transform data to match frontend format
       const matchesData = {};
       matches.forEach(match => {
-        matchesData[match.game_key] = {
+        matchesData[match.gamekey] = {
           club: match.club || '',
           address: match.address || '',
           time: match.time || '',
-          jerseyParent: match.jersey_parent || '',
+          jerseyParent: match.jerseyparent || '',
           drivers: match.drivers || ['', '', ''],
-          snackParents: match.snack_parents || ['', ''],
+          snackParents: match.snackparents || ['', ''],
           attendance: match.attendance || {}
         };
       });
@@ -98,7 +101,7 @@ exports.handler = async (event, context) => {
       // Upsert match data
       await sql`
         INSERT INTO matches (
-          game_key, club, address, time, jersey_parent, drivers, snack_parents, attendance, updated_at
+          gamekey, club, address, time, jerseyparent, drivers, snackparents, attendance, updated_at
         ) VALUES (
           ${gameKey},
           ${matchData.club},
@@ -110,14 +113,14 @@ exports.handler = async (event, context) => {
           ${JSON.stringify(matchData.attendance)},
           CURRENT_TIMESTAMP
         )
-        ON CONFLICT (game_key)
+        ON CONFLICT (gamekey)
         DO UPDATE SET
           club = EXCLUDED.club,
           address = EXCLUDED.address,
           time = EXCLUDED.time,
-          jersey_parent = EXCLUDED.jersey_parent,
+          jerseyparent = EXCLUDED.jerseyparent,
           drivers = EXCLUDED.drivers,
-          snack_parents = EXCLUDED.snack_parents,
+          snackparents = EXCLUDED.snackparents,
           attendance = EXCLUDED.attendance,
           updated_at = CURRENT_TIMESTAMP
       `;
