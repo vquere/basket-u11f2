@@ -290,10 +290,16 @@
                 // Load matches from database
                 const loadMatches = async () => {
                     try {
+                        console.log('Loading matches from database...');
                         const response = await fetch('/api/matches');
 
                         if (response.ok) {
                             const data = await response.json();
+                            console.log('Database response:', data);
+
+                            // Check if we actually have match data
+                            const hasExistingData = data.matches && Object.keys(data.matches).length > 0;
+                            console.log('Has existing data:', hasExistingData);
 
                             // Fill in missing games with defaults
                             const allMatches = {};
@@ -315,11 +321,17 @@
                             }
 
                             setMatches(allMatches);
+
+                            if (!hasExistingData) {
+                                console.warn('No existing match data found in database');
+                            }
                         } else {
-                            throw new Error('Failed to load matches');
+                            console.error('Database request failed with status:', response.status);
+                            throw new Error(`Failed to load matches: ${response.status}`);
                         }
                     } catch (error) {
                         console.error('Error loading matches:', error);
+                        console.log('Falling back to default matches');
                         // Fall back to default matches
                         loadDefaultMatches();
                     }
@@ -600,7 +612,8 @@
                                     )
                                 ),
 
-                                React.createElement('div', null,
+                                // Only show drivers for away games
+                                matchForm.location === 'Extérieur' && React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🚗 Parents conducteurs (3 voitures)'),
                                     React.createElement('div', { className: 'space-y-2' },
                                         matchForm.drivers.map((driver, index) =>
@@ -625,7 +638,8 @@
                                     )
                                 ),
 
-                                React.createElement('div', null,
+                                // Only show snack parents for home games
+                                matchForm.location === 'Domicile' && React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🍪 Responsables du goûter'),
                                     React.createElement('div', { className: 'space-y-2' },
                                         matchForm.snackParents.map((parent, index) =>
