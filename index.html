@@ -179,67 +179,85 @@
                     snackParents: ['', '']
                 });
 
+                // Club addresses
+                const clubAddresses = {
+                    'THORIGNE FOUILLARD BC': '30 Rue du Champ Méloin, 35235 THORIGNE-FOUILLARD',
+                    'PACE CO-1': '54 Avenue Le BRIX, 35740 PACE',
+                    'LIFFRE US-2': '15 RUE JULES VERNE, 35340 LIFFRE',
+                    'BETTON CS-1': 'Le prieuré, 35830 BETTON'
+                };
+
                 // Game dates and opponent info
                 const gameDates = {
                     'J1': {
                         full: 'Samedi 27 Septembre',
                         short: '27/09 - J1',
                         club: 'LIFFRE US-2',
-                        location: 'Extérieur'
+                        location: 'Extérieur',
+                        address: clubAddresses['LIFFRE US-2']
                     },
                     'J2': {
                         full: 'Vendredi 4 Octobre',
                         short: '04/10 - J2',
                         club: 'PACE CO-1',
-                        location: 'Domicile'
+                        location: 'Domicile',
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
                     },
                     'J3': {
                         full: 'Pas de match',
                         short: 'J3 - Repos',
                         club: '',
-                        location: ''
+                        location: '',
+                        address: ''
                     },
                     'J4': {
                         full: 'Vendredi 18 Octobre',
                         short: '18/10 - J4',
                         club: 'BETTON CS-1',
-                        location: 'Extérieur'
+                        location: 'Extérieur',
+                        address: clubAddresses['BETTON CS-1']
                     },
                     'J5': {
                         full: 'Vendredi 1er Novembre',
                         short: '01/11 - J5',
                         club: 'THORIGNE FOUILLARD BC',
-                        location: 'Domicile'
+                        location: 'Domicile',
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
                     },
                     'J6': {
                         full: 'Vendredi 8 Novembre',
                         short: '08/11 - J6',
                         club: 'LIFFRE US-2',
-                        location: 'Domicile'
+                        location: 'Domicile',
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
                     },
                     'J7': {
                         full: 'Vendredi 15 Novembre',
                         short: '15/11 - J7',
                         club: 'PACE CO-1',
-                        location: 'Extérieur'
+                        location: 'Extérieur',
+                        address: clubAddresses['PACE CO-1']
                     },
                     'J8': {
                         full: 'Pas de match',
                         short: 'J8 - Repos',
                         club: '',
-                        location: ''
+                        location: '',
+                        address: ''
                     },
                     'J9': {
                         full: 'Vendredi 29 Novembre',
                         short: '29/11 - J9',
                         club: 'BETTON CS-1',
-                        location: 'Domicile'
+                        location: 'Domicile',
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
                     },
                     'J10': {
                         full: 'Vendredi 6 Décembre',
                         short: '06/12 - J10',
                         club: 'THORIGNE FOUILLARD BC',
-                        location: 'Extérieur'
+                        location: 'Extérieur',
+                        address: clubAddresses['THORIGNE FOUILLARD BC']
                     }
                 };
 
@@ -257,7 +275,7 @@
                                 const gameKey = `J${i}`;
                                 allMatches[gameKey] = data.matches[gameKey] || {
                                     club: gameDates[gameKey]?.club || '',
-                                    address: '',
+                                    address: gameDates[gameKey]?.address || '',
                                     time: '',
                                     location: gameDates[gameKey]?.location || '',
                                     jerseyParent: '',
@@ -287,7 +305,7 @@
                         const gameKey = `J${i}`;
                         initialMatches[gameKey] = {
                             club: gameDates[gameKey]?.club || '',
-                            address: '',
+                            address: gameDates[gameKey]?.address || '',
                             time: '',
                             location: gameDates[gameKey]?.location || '',
                             jerseyParent: '',
@@ -312,11 +330,16 @@
                     setSelectedDate(gameKey);
 
                     if (matches[gameKey]) {
-                        setMatchForm(matches[gameKey]);
+                        // Ensure address is populated from gameDates if missing
+                        const matchData = { ...matches[gameKey] };
+                        if (!matchData.address && gameDates[gameKey]?.address) {
+                            matchData.address = gameDates[gameKey].address;
+                        }
+                        setMatchForm(matchData);
                     } else {
                         setMatchForm({
                             club: gameDates[gameKey]?.club || '',
-                            address: '',
+                            address: gameDates[gameKey]?.address || '',
                             time: '',
                             location: gameDates[gameKey]?.location || '',
                             jerseyParent: '',
@@ -394,42 +417,17 @@
                         React.createElement('p', { className: 'text-sm text-gray-500 mt-1' },
                             '⚡ Base de données Neon • 🔄 Sauvegarde automatique'
                         ),
-                        React.createElement('button', {
-                            onClick: async () => {
-                                if (confirm('Êtes-vous sûr de vouloir effacer toutes les données sauvegardées ?')) {
-                                    try {
-                                        const response = await fetch('/api/matches', { method: 'DELETE' });
-                                        if (response.ok) {
-                                            window.location.reload();
-                                        } else {
-                                            alert('Erreur lors de la suppression des données');
-                                        }
-                                    } catch (error) {
-                                        console.error('Error clearing data:', error);
-                                        alert('Erreur lors de la suppression des données');
-                                    }
-                                }
+                        React.createElement('div', { className: 'mt-3' },
+                            React.createElement('a', {
+                                href: 'https://competitions.ffbb.com/ligues/bre/comites/0035/clubs/bre0035013/equipes/200000005186561',
+                                target: '_blank',
+                                rel: 'noopener noreferrer',
+                                className: 'inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium'
                             },
-                            className: 'mt-2 px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors'
-                        }, '🗑️ Effacer toutes les données'),
-                        React.createElement('button', {
-                            onClick: async () => {
-                                try {
-                                    setError('');
-                                    const response = await fetch('/api/test-db');
-                                    const data = await response.json();
-
-                                    if (response.ok) {
-                                        alert('✅ Base de données connectée!\nVersion: ' + data.version.substring(0, 50) + '...');
-                                    } else {
-                                        setError('❌ Test DB échoué: ' + data.details);
-                                    }
-                                } catch (error) {
-                                    setError('❌ Impossible de tester la DB: ' + error.message);
-                                }
-                            },
-                            className: 'mt-2 ml-2 px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors'
-                        }, '🔍 Tester DB')
+                                React.createElement('span', { className: 'mr-2' }, '🏀'),
+                                'Fédération FFBB - Équipe U11F2'
+                            )
+                        ),
                     ),
 
                     // Games grid (J1-J14)
@@ -505,17 +503,24 @@
 
                                 React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🏠 Lieu'),
-                                    React.createElement('input', {
-                                        type: 'text',
-                                        value: matchForm.location,
-                                        readOnly: true,
-                                        className: `w-full p-3 border border-gray-300 rounded-lg cursor-not-allowed ${
-                                            matchForm.location === 'Domicile'
-                                                ? 'bg-green-50 text-green-800 border-green-300'
-                                                : 'bg-orange-50 text-orange-800 border-orange-300'
-                                        }`,
-                                        placeholder: 'Domicile ou Extérieur'
-                                    })
+                                    React.createElement('div', { className: 'space-y-2' },
+                                        React.createElement('div', {
+                                            className: `w-full p-3 border border-gray-300 rounded-lg cursor-pointer ${
+                                                matchForm.location === 'Domicile'
+                                                    ? 'bg-green-50 text-green-800 border-green-300 hover:bg-green-100'
+                                                    : 'bg-orange-50 text-orange-800 border-orange-300 hover:bg-orange-100'
+                                            } transition-colors`,
+                                            onClick: () => {
+                                                if (matchForm.address && matchForm.address !== 'Adresse à confirmer') {
+                                                    window.open(`https://www.google.com/maps/search/${encodeURIComponent(matchForm.address)}`, '_blank');
+                                                }
+                                            }
+                                        },
+                                            React.createElement('span', {
+                                                className: `font-medium ${matchForm.address && matchForm.address !== 'Adresse à confirmer' ? 'underline' : ''}`
+                                            }, matchForm.address || 'Adresse non définie')
+                                        )
+                                    )
                                 ),
 
                                 React.createElement('div', null,
@@ -528,16 +533,6 @@
                                     })
                                 ),
 
-                                React.createElement('div', null,
-                                    React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '📍 Adresse de la salle'),
-                                    React.createElement('textarea', {
-                                        value: matchForm.address,
-                                        onChange: (e) => setMatchForm({...matchForm, address: e.target.value}),
-                                        className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                                        placeholder: 'Adresse de la salle',
-                                        rows: 2
-                                    })
-                                )
                             ),
 
                             // Organization column
@@ -654,7 +649,7 @@
                             React.createElement('h4', { className: 'font-semibold text-blue-800 mb-3 flex items-center' }, '📋 Résumé'),
                             React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-4 text-sm' },
                                 matchForm.club && React.createElement('p', null,
-                                    React.createElement('span', { className: 'font-medium' }, 'Club : '),
+                                    React.createElement('span', { className: 'font-medium' }, 'Adversaire : '),
                                     matchForm.club
                                 ),
                                 matchForm.time && React.createElement('p', null,
