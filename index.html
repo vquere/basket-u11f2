@@ -192,8 +192,44 @@
                     // etc.
                 };
 
-                // Load matches on component mount
-                useEffect(() => {
+                // Load matches from database
+                const loadMatches = async () => {
+                    try {
+                        const response = await fetch('/api/matches');
+
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            // Fill in missing games with defaults
+                            const allMatches = {};
+                            for (let i = 1; i <= 14; i++) {
+                                const gameKey = `J${i}`;
+                                allMatches[gameKey] = data.matches[gameKey] || {
+                                    club: '',
+                                    address: '',
+                                    time: '',
+                                    jerseyParent: '',
+                                    drivers: ['', '', ''],
+                                    snackParents: ['', ''],
+                                    attendance: players.reduce((acc, player) => {
+                                        acc[player.name] = true;
+                                        return acc;
+                                    }, {})
+                                };
+                            }
+
+                            setMatches(allMatches);
+                        } else {
+                            throw new Error('Failed to load matches');
+                        }
+                    } catch (error) {
+                        console.error('Error loading matches:', error);
+                        // Fall back to default matches
+                        loadDefaultMatches();
+                    }
+                };
+
+                const loadDefaultMatches = () => {
                     const initialMatches = {};
                     for (let i = 1; i <= 14; i++) {
                         initialMatches[`J${i}`] = {
@@ -204,12 +240,17 @@
                             drivers: ['', '', ''],
                             snackParents: ['', ''],
                             attendance: players.reduce((acc, player) => {
-                                acc[player.name] = true; // Default to present
+                                acc[player.name] = true;
                                 return acc;
                             }, {})
                         };
                     }
                     setMatches(initialMatches);
+                };
+
+                // Load matches on component mount
+                useEffect(() => {
+                    loadMatches();
                 }, []);
 
 
@@ -234,17 +275,45 @@
                     }
                 };
 
-                const saveMatch = () => {
+                const saveMatch = async () => {
                     if (!selectedDate) return;
 
-                    setMatches(prev => ({
-                        ...prev,
-                        [selectedDate]: matchForm
-                    }));
+                    setLoading(true);
+                    setError('');
 
-                    // Show success message with details
-                    const presentCount = matchForm.attendance ? Object.values(matchForm.attendance).filter(Boolean).length : 0;
-                    alert(`${selectedDate} sauvegardé avec succès !\n${presentCount}/${players.length} joueuses présentes`);
+                    try {
+                        const response = await fetch('/api/matches', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                gameKey: selectedDate,
+                                matchData: matchForm
+                            })
+                        });
+
+                        if (response.ok) {
+                            // Update local state
+                            setMatches(prev => ({
+                                ...prev,
+                                [selectedDate]: matchForm
+                            }));
+
+                            // Show success message with details
+                            const presentCount = matchForm.attendance ? Object.values(matchForm.attendance).filter(Boolean).length : 0;
+                            alert(`${selectedDate} sauvegardé avec succès !\n${presentCount}/${players.length} joueuses présentes`);
+
+                            setError('');
+                        } else {
+                            throw new Error('Erreur de sauvegarde');
+                        }
+                    } catch (error) {
+                        console.error('Error saving match:', error);
+                        setError('Erreur lors de la sauvegarde. Vérifiez votre connexion internet.');
+                    }
+
+                    setLoading(false);
                 };
 
                 return React.createElement('div', { className: 'max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen' },
@@ -256,7 +325,25 @@
                         React.createElement('p', { className: 'text-gray-600' }, 'Organisation des matchs - Parents et encadrement'),
                         React.createElement('p', { className: 'text-sm text-gray-500 mt-1' },
                             '⚡ Base de données Neon • 🔄 Sauvegarde automatique'
-                        )
+                        ),
+                        React.createElement('button', {
+                            onClick: async () => {
+                                if (confirm('Êtes-vous sûr de vouloir effacer toutes les données sauvegardées ?')) {
+                                    try {
+                                        const response = await fetch('/api/matches', { method: 'DELETE' });
+                                        if (response.ok) {
+                                            window.location.reload();
+                                        } else {
+                                            alert('Erreur lors de la suppression des données');
+                                        }
+                                    } catch (error) {
+                                        console.error('Error clearing data:', error);
+                                        alert('Erreur lors de la suppression des données');
+                                    }
+                                }
+                            },
+                            className: 'mt-2 px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors'
+                        }, '🗑️ Effacer toutes les données')
                     ),
 
                     // Games grid (J1-J14)
@@ -288,6 +375,11 @@
                                 );
                             })
                         )
+                    ),
+
+                    // Error display
+                    error && React.createElement('div', { className: 'mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg' },
+                        '⚠️ ', error
                     ),
 
                     // Match form (when date is selected)
@@ -482,8 +574,12 @@
 
                             React.createElement('button', {
                                 onClick: saveMatch,
-                                className: 'px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'
-                            }, 'Enregistrer')
+                                disabled: loading,
+                                className: `px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center ${loading ? 'cursor-wait' : ''}`
+                            },
+                                loading && React.createElement('div', { className: 'loading-spinner mr-2' }),
+                                loading ? 'Sauvegarde...' : 'Enregistrer'
+                            )
                         )
                     )
                 );
