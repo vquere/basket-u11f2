@@ -9,25 +9,21 @@ console.log('Environment check:', {
 
 const sql = neon(process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED);
 
-// Check if table exists and has correct schema
-async function checkTableSchema() {
+// Check if table exists
+async function checkTableExists() {
   try {
-    // Check if table exists and get column info
-    const tableInfo = await sql`
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_name = 'matches' AND table_schema = 'public'
+    // Check if table exists
+    const result = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = 'matches'
+      );
     `;
 
-    const columnNames = tableInfo.map(row => row.column_name);
-
-    // Check if we have the correct columns
-    const requiredColumns = ['gamekey', 'jerseyparent', 'snackparents', 'location'];
-    const hasCorrectSchema = requiredColumns.every(col => columnNames.includes(col));
-
-    return hasCorrectSchema;
+    return result[0].exists;
   } catch (error) {
-    console.log('Table does not exist or error checking schema:', error.message);
+    console.log('Error checking if table exists:', error.message);
     return false;
   }
 }
@@ -35,13 +31,10 @@ async function checkTableSchema() {
 // Initialize database tables
 async function initializeDatabase() {
   try {
-    const hasCorrectSchema = await checkTableSchema();
+    const tableExists = await checkTableExists();
 
-    if (!hasCorrectSchema) {
-      console.log('Creating/recreating table with correct schema...');
-
-      // Drop existing table only if it has wrong schema
-      await sql`DROP TABLE IF EXISTS matches`;
+    if (!tableExists) {
+      console.log('Creating matches table...');
 
       // Create matches table with correct column names
       await sql`
@@ -61,9 +54,9 @@ async function initializeDatabase() {
         )
       `;
 
-      console.log('Database initialized successfully with correct schema');
+      console.log('Database table created successfully');
     } else {
-      console.log('Table already exists with correct schema');
+      console.log('Table already exists - preserving existing data');
     }
   } catch (error) {
     console.error('Database initialization error:', error);
