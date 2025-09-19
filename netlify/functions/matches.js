@@ -9,30 +9,61 @@ console.log('Environment check:', {
 
 const sql = neon(process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED);
 
+// Check if table exists and has correct schema
+async function checkTableSchema() {
+  try {
+    // Check if table exists and get column info
+    const tableInfo = await sql`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'matches' AND table_schema = 'public'
+    `;
+
+    const columnNames = tableInfo.map(row => row.column_name);
+
+    // Check if we have the correct columns
+    const requiredColumns = ['gamekey', 'jerseyparent', 'snackparents'];
+    const hasCorrectSchema = requiredColumns.every(col => columnNames.includes(col));
+
+    return hasCorrectSchema;
+  } catch (error) {
+    console.log('Table does not exist or error checking schema:', error.message);
+    return false;
+  }
+}
+
 // Initialize database tables
 async function initializeDatabase() {
   try {
-    // Drop existing table if it exists (to fix column naming issues)
-    await sql`DROP TABLE IF EXISTS matches`;
+    const hasCorrectSchema = await checkTableSchema();
 
-    // Create matches table with correct column names
-    await sql`
-      CREATE TABLE matches (
-        id SERIAL PRIMARY KEY,
-        gamekey VARCHAR(10) UNIQUE NOT NULL,
-        club VARCHAR(255),
-        address TEXT,
-        time VARCHAR(10),
-        jerseyparent VARCHAR(255),
-        drivers JSONB,
-        snackparents JSONB,
-        attendance JSONB,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `;
+    if (!hasCorrectSchema) {
+      console.log('Creating/recreating table with correct schema...');
 
-    console.log('Database initialized successfully with correct schema');
+      // Drop existing table only if it has wrong schema
+      await sql`DROP TABLE IF EXISTS matches`;
+
+      // Create matches table with correct column names
+      await sql`
+        CREATE TABLE matches (
+          id SERIAL PRIMARY KEY,
+          gamekey VARCHAR(10) UNIQUE NOT NULL,
+          club VARCHAR(255),
+          address TEXT,
+          time VARCHAR(10),
+          jerseyparent VARCHAR(255),
+          drivers JSONB,
+          snackparents JSONB,
+          attendance JSONB,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+
+      console.log('Database initialized successfully with correct schema');
+    } else {
+      console.log('Table already exists with correct schema');
+    }
   } catch (error) {
     console.error('Database initialization error:', error);
     throw error;
@@ -66,6 +97,8 @@ exports.handler = async (event, context) => {
         SELECT * FROM matches ORDER BY gamekey
       `;
 
+      console.log(`Found ${matches.length} matches in database`);
+
       // Transform data to match frontend format
       const matchesData = {};
       matches.forEach(match => {
@@ -80,6 +113,8 @@ exports.handler = async (event, context) => {
         };
       });
 
+      console.log(`Returning ${Object.keys(matchesData).length} matches to frontend`);
+
       return {
         statusCode: 200,
         headers,
@@ -90,6 +125,12 @@ exports.handler = async (event, context) => {
     if (event.httpMethod === 'POST') {
       const { gameKey, matchData } = JSON.parse(event.body);
 
+      console.log(`Saving match ${gameKey}:`, {
+        club: matchData.club,
+        hasAttendance: !!matchData.attendance,
+        attendanceCount: matchData.attendance ? Object.keys(matchData.attendance).length : 0
+      });
+
       if (!gameKey || !matchData) {
         return {
           statusCode: 400,
@@ -99,7 +140,7 @@ exports.handler = async (event, context) => {
       }
 
       // Upsert match data
-      await sql`
+      const result = await sql`
         INSERT INTO matches (
           gamekey, club, address, time, jerseyparent, drivers, snackparents, attendance, updated_at
         ) VALUES (
@@ -123,7 +164,10 @@ exports.handler = async (event, context) => {
           snackparents = EXCLUDED.snackparents,
           attendance = EXCLUDED.attendance,
           updated_at = CURRENT_TIMESTAMP
+        RETURNING gamekey
       `;
+
+      console.log(`Successfully saved match ${gameKey}:`, result);
 
       return {
         statusCode: 200,
