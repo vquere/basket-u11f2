@@ -194,72 +194,98 @@
                         short: '27/09 - J1',
                         club: 'LIFFRE US-2',
                         location: 'Extérieur',
-                        address: clubAddresses['LIFFRE US-2']
+                        address: clubAddresses['LIFFRE US-2'],
+                        date: new Date(2024, 8, 27) // September 27, 2024
                     },
                     'J2': {
                         full: 'Vendredi 4 Octobre',
                         short: '04/10 - J2',
                         club: 'PACE CO-1',
                         location: 'Domicile',
-                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE',
+                        date: new Date(2024, 9, 4) // October 4, 2024
                     },
                     'J3': {
                         full: 'Pas de match',
                         short: 'J3 - Repos',
                         club: '',
                         location: '',
-                        address: ''
+                        address: '',
+                        date: null
                     },
                     'J4': {
                         full: 'Vendredi 18 Octobre',
                         short: '18/10 - J4',
                         club: 'BETTON CS-1',
                         location: 'Extérieur',
-                        address: clubAddresses['BETTON CS-1']
+                        address: clubAddresses['BETTON CS-1'],
+                        date: new Date(2024, 9, 18) // October 18, 2024
                     },
                     'J5': {
                         full: 'Vendredi 1er Novembre',
                         short: '01/11 - J5',
                         club: 'THORIGNE FOUILLARD BC',
                         location: 'Domicile',
-                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE',
+                        date: new Date(2024, 10, 1) // November 1, 2024
                     },
                     'J6': {
                         full: 'Vendredi 8 Novembre',
                         short: '08/11 - J6',
                         club: 'LIFFRE US-2',
                         location: 'Domicile',
-                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE',
+                        date: new Date(2024, 10, 8) // November 8, 2024
                     },
                     'J7': {
                         full: 'Vendredi 15 Novembre',
                         short: '15/11 - J7',
                         club: 'PACE CO-1',
                         location: 'Extérieur',
-                        address: clubAddresses['PACE CO-1']
+                        address: clubAddresses['PACE CO-1'],
+                        date: new Date(2024, 10, 15) // November 15, 2024
                     },
                     'J8': {
                         full: 'Pas de match',
                         short: 'J8 - Repos',
                         club: '',
                         location: '',
-                        address: ''
+                        address: '',
+                        date: null
                     },
                     'J9': {
                         full: 'Vendredi 29 Novembre',
                         short: '29/11 - J9',
                         club: 'BETTON CS-1',
                         location: 'Domicile',
-                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE'
+                        address: '43 Rue de Dézerseul, 35510 CESSON-SEVIGNE',
+                        date: new Date(2024, 10, 29) // November 29, 2024
                     },
                     'J10': {
                         full: 'Vendredi 6 Décembre',
                         short: '06/12 - J10',
                         club: 'THORIGNE FOUILLARD BC',
                         location: 'Extérieur',
-                        address: clubAddresses['THORIGNE FOUILLARD BC']
+                        address: clubAddresses['THORIGNE FOUILLARD BC'],
+                        date: new Date(2024, 11, 6) // December 6, 2024
                     }
                 };
+
+                // Find next game
+                const findNextGame = () => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Start of today
+
+                    // Get all games with dates, sorted by date
+                    const upcomingGames = Object.entries(gameDates)
+                        .filter(([key, game]) => game.date && game.club) // Only games with dates and opponents
+                        .filter(([key, game]) => game.date >= today) // Only future/today games
+                        .sort(([a, gameA], [b, gameB]) => gameA.date - gameB.date); // Sort by date
+
+                    return upcomingGames.length > 0 ? upcomingGames[0] : null;
+                };
+
+                const nextGame = findNextGame();
 
                 // Load matches from database
                 const loadMatches = async () => {
@@ -417,15 +443,33 @@
                         React.createElement('p', { className: 'text-sm text-gray-500 mt-1' },
                             '⚡ Base de données Neon • 🔄 Sauvegarde automatique'
                         ),
-                        React.createElement('div', { className: 'mt-3' },
-                            React.createElement('a', {
-                                href: 'https://competitions.ffbb.com/ligues/bre/comites/0035/clubs/bre0035013/equipes/200000005186561',
-                                target: '_blank',
-                                rel: 'noopener noreferrer',
-                                className: 'inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium'
+                        React.createElement('div', { className: 'mt-3 space-y-3' },
+                            // Next game display
+                            nextGame && React.createElement('div', {
+                                className: 'inline-block px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg'
                             },
-                                React.createElement('span', { className: 'mr-2' }, '🏀'),
-                                'Fédération FFBB - Équipe U11F2'
+                                React.createElement('div', { className: 'text-center' },
+                                    React.createElement('div', { className: 'text-sm font-medium opacity-90' }, '🚀 Prochain match'),
+                                    React.createElement('div', { className: 'text-lg font-bold' }, nextGame[1].full),
+                                    React.createElement('div', { className: 'text-sm' },
+                                        `${nextGame[1].location} vs ${nextGame[1].club}`
+                                    ),
+                                    nextGame[1].address && React.createElement('div', {
+                                        className: 'text-xs mt-1 opacity-75 cursor-pointer hover:opacity-100 underline',
+                                        onClick: () => window.open(`https://www.google.com/maps/search/${encodeURIComponent(nextGame[1].address)}`, '_blank')
+                                    }, '📍 ' + nextGame[1].address)
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('a', {
+                                    href: 'https://competitions.ffbb.com/ligues/bre/comites/0035/clubs/bre0035013/equipes/200000005186561',
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer',
+                                    className: 'inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium'
+                                },
+                                    React.createElement('span', { className: 'mr-2' }, '🏀'),
+                                    'Fédération FFBB - Équipe U11F2'
+                                )
                             )
                         ),
                     ),
@@ -459,8 +503,7 @@
                                     React.createElement('div', { className: 'text-xs mt-1' },
                                         gameDate && gameDate.club ? `${gameDate.location}` :
                                         gameDate ? '' : 'Journée ' + (i + 1)
-                                    ),
-                                    hasMatchData && React.createElement('div', { className: 'text-xs text-blue-600 mt-1' }, '✓ Configuré')
+                                    )
                                 );
                             })
                         )
