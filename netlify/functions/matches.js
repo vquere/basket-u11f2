@@ -22,7 +22,7 @@ async function checkTableSchema() {
     const columnNames = tableInfo.map(row => row.column_name);
 
     // Check if we have the correct columns
-    const requiredColumns = ['gamekey', 'jerseyparent', 'snackparents'];
+    const requiredColumns = ['gamekey', 'jerseyparent', 'snackparents', 'location'];
     const hasCorrectSchema = requiredColumns.every(col => columnNames.includes(col));
 
     return hasCorrectSchema;
@@ -51,6 +51,7 @@ async function initializeDatabase() {
           club VARCHAR(255),
           address TEXT,
           time VARCHAR(10),
+          location VARCHAR(20),
           jerseyparent VARCHAR(255),
           drivers JSONB,
           snackparents JSONB,
@@ -106,6 +107,7 @@ exports.handler = async (event, context) => {
           club: match.club || '',
           address: match.address || '',
           time: match.time || '',
+          location: match.location || '',
           jerseyParent: match.jerseyparent || '',
           drivers: match.drivers || ['', '', ''],
           snackParents: match.snackparents || ['', ''],
@@ -142,12 +144,13 @@ exports.handler = async (event, context) => {
       // Upsert match data
       const result = await sql`
         INSERT INTO matches (
-          gamekey, club, address, time, jerseyparent, drivers, snackparents, attendance, updated_at
+          gamekey, club, address, time, location, jerseyparent, drivers, snackparents, attendance, updated_at
         ) VALUES (
           ${gameKey},
           ${matchData.club},
           ${matchData.address},
           ${matchData.time},
+          ${matchData.location},
           ${matchData.jerseyParent},
           ${JSON.stringify(matchData.drivers)},
           ${JSON.stringify(matchData.snackParents)},
@@ -159,6 +162,7 @@ exports.handler = async (event, context) => {
           club = EXCLUDED.club,
           address = EXCLUDED.address,
           time = EXCLUDED.time,
+          location = EXCLUDED.location,
           jerseyparent = EXCLUDED.jerseyparent,
           drivers = EXCLUDED.drivers,
           snackparents = EXCLUDED.snackparents,
