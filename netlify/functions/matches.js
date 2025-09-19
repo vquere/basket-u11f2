@@ -1,6 +1,13 @@
 const { neon } = require('@neondatabase/serverless');
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
+// Log environment check
+console.log('Environment check:', {
+  hasNetlifyUrl: !!process.env.NETLIFY_DATABASE_URL,
+  hasUnpooled: !!process.env.NETLIFY_DATABASE_URL_UNPOOLED,
+  nodeEnv: process.env.NODE_ENV
+});
+
+const sql = neon(process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED);
 
 // Initialize database tables
 async function initializeDatabase() {
@@ -141,10 +148,16 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('Function error:', error);
+    console.error('Error stack:', error.stack);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error', details: error.message }),
+      body: JSON.stringify({
+        error: 'Internal server error',
+        details: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      }),
     };
   }
 };
