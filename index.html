@@ -176,7 +176,9 @@
                     location: '',
                     jerseyParent: '',
                     drivers: ['', '', ''],
-                    snackParents: ['', '']
+                    snackParents: ['', ''],
+                    matchSheetReferee: '',
+                    matchSheetPlayers: ['', '']
                 });
 
                 // Club addresses
@@ -198,7 +200,7 @@
                         date: new Date(2024, 8, 27) // September 27, 2024
                     },
                     'J2': {
-                        full: 'Vendredi 4 Octobre',
+                        full: 'Samedi 4 Octobre',
                         short: '04/10 - J2',
                         club: 'PACE CO-1',
                         location: 'Domicile',
@@ -214,7 +216,7 @@
                         date: null
                     },
                     'J4': {
-                        full: 'Vendredi 18 Octobre',
+                        full: 'Samedi 18 Octobre',
                         short: '18/10 - J4',
                         club: 'BETTON CS-1',
                         location: 'Extérieur',
@@ -222,7 +224,7 @@
                         date: new Date(2024, 9, 18) // October 18, 2024
                     },
                     'J5': {
-                        full: 'Vendredi 1er Novembre',
+                        full: 'Samedi 1er Novembre',
                         short: '01/11 - J5',
                         club: 'THORIGNE FOUILLARD BC',
                         location: 'Domicile',
@@ -230,7 +232,7 @@
                         date: new Date(2024, 10, 1) // November 1, 2024
                     },
                     'J6': {
-                        full: 'Vendredi 8 Novembre',
+                        full: 'Samedi 8 Novembre',
                         short: '08/11 - J6',
                         club: 'LIFFRE US-2',
                         location: 'Domicile',
@@ -238,7 +240,7 @@
                         date: new Date(2024, 10, 8) // November 8, 2024
                     },
                     'J7': {
-                        full: 'Vendredi 15 Novembre',
+                        full: 'Samedi 15 Novembre',
                         short: '15/11 - J7',
                         club: 'PACE CO-1',
                         location: 'Extérieur',
@@ -254,7 +256,7 @@
                         date: null
                     },
                     'J9': {
-                        full: 'Vendredi 29 Novembre',
+                        full: 'Samedi 29 Novembre',
                         short: '29/11 - J9',
                         club: 'BETTON CS-1',
                         location: 'Domicile',
@@ -262,7 +264,7 @@
                         date: new Date(2024, 10, 29) // November 29, 2024
                     },
                     'J10': {
-                        full: 'Vendredi 6 Décembre',
+                        full: 'Samedi 6 Décembre',
                         short: '06/12 - J10',
                         club: 'THORIGNE FOUILLARD BC',
                         location: 'Extérieur',
@@ -313,6 +315,8 @@
                                     jerseyParent: '',
                                     drivers: ['', '', ''],
                                     snackParents: ['', ''],
+                                    matchSheetReferee: '',
+                                    matchSheetPlayers: ['', ''],
                                     attendance: players.reduce((acc, player) => {
                                         acc[player.name] = true;
                                         return acc;
@@ -349,6 +353,8 @@
                             jerseyParent: '',
                             drivers: ['', '', ''],
                             snackParents: ['', ''],
+                            matchSheetReferee: '',
+                            matchSheetPlayers: ['', ''],
                             attendance: players.reduce((acc, player) => {
                                 acc[player.name] = true;
                                 return acc;
@@ -383,6 +389,8 @@
                             jerseyParent: '',
                             drivers: ['', '', ''],
                             snackParents: ['', ''],
+                            matchSheetReferee: '',
+                            matchSheetPlayers: ['', ''],
                             attendance: players.reduce((acc, player) => {
                                 acc[player.name] = true;
                                 return acc;
@@ -657,6 +665,48 @@
                                                 [...new Set(players.map(player => player.parentName))].map((parentName, playerIndex) =>
                                                     React.createElement('option', { key: playerIndex, value: parentName },
                                                         parentName
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+
+                                // Only show match sheet fields for home games
+                                matchForm.location === 'Domicile' && React.createElement('div', null,
+                                    React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '📋 Référent feuille de match'),
+                                    React.createElement('select', {
+                                        value: matchForm.matchSheetReferee,
+                                        onChange: (e) => setMatchForm({...matchForm, matchSheetReferee: e.target.value}),
+                                        className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                    },
+                                        React.createElement('option', { value: '' }, 'Sélectionner un parent'),
+                                        [...new Set(players.map(player => player.parentName))].map((parentName, index) =>
+                                            React.createElement('option', { key: index, value: parentName },
+                                                parentName
+                                            )
+                                        )
+                                    )
+                                ),
+
+                                matchForm.location === 'Domicile' && React.createElement('div', null,
+                                    React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🏀 Joueuses à la feuille de match'),
+                                    React.createElement('div', { className: 'space-y-2' },
+                                        matchForm.matchSheetPlayers.map((player, index) =>
+                                            React.createElement('select', {
+                                                key: index,
+                                                value: player,
+                                                onChange: (e) => {
+                                                    const newMatchSheetPlayers = [...matchForm.matchSheetPlayers];
+                                                    newMatchSheetPlayers[index] = e.target.value;
+                                                    setMatchForm({...matchForm, matchSheetPlayers: newMatchSheetPlayers});
+                                                },
+                                                className: 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                            },
+                                                React.createElement('option', { value: '' }, `Joueuse ${index + 1} - Sélectionner`),
+                                                players.map((playerData, playerIndex) =>
+                                                    React.createElement('option', { key: playerIndex, value: playerData.name },
+                                                        playerData.name
                                                     )
                                                 )
                                             )
