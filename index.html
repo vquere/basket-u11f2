@@ -399,6 +399,20 @@
                                 }, {});
                             }
 
+                            // Ensure arrays are properly initialized
+                            if (!matchData.drivers || !Array.isArray(matchData.drivers)) {
+                                console.log('Initializing drivers for', gameKey);
+                                matchData.drivers = ['', '', ''];
+                            }
+                            if (!matchData.snackParents || !Array.isArray(matchData.snackParents)) {
+                                console.log('Initializing snackParents for', gameKey);
+                                matchData.snackParents = ['', ''];
+                            }
+                            if (!matchData.matchSheetPlayers || !Array.isArray(matchData.matchSheetPlayers)) {
+                                console.log('Initializing matchSheetPlayers for', gameKey);
+                                matchData.matchSheetPlayers = ['', ''];
+                            }
+
                             console.log('Final match data:', matchData);
                             setMatchForm(matchData);
                         } else {
@@ -656,7 +670,7 @@
                                 matchForm.location === 'Extérieur' && React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🚗 Parents conducteurs (3 voitures)'),
                                     React.createElement('div', { className: 'space-y-2' },
-                                        matchForm.drivers.map((driver, index) =>
+                                        (matchForm.drivers || ['', '', '']).map((driver, index) =>
                                             React.createElement('select', {
                                                 key: index,
                                                 value: driver,
@@ -682,7 +696,7 @@
                                 matchForm.location === 'Domicile' && React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🍪 Responsables du goûter'),
                                     React.createElement('div', { className: 'space-y-2' },
-                                        matchForm.snackParents.map((parent, index) =>
+                                        (matchForm.snackParents || ['', '']).map((parent, index) =>
                                             React.createElement('select', {
                                                 key: index,
                                                 value: parent,
@@ -724,7 +738,7 @@
                                 matchForm.location === 'Domicile' && React.createElement('div', null,
                                     React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, '🏀 Joueuses à la feuille de match'),
                                     React.createElement('div', { className: 'space-y-2' },
-                                        matchForm.matchSheetPlayers.map((player, index) =>
+                                        (matchForm.matchSheetPlayers || ['', '']).map((player, index) =>
                                             React.createElement('select', {
                                                 key: index,
                                                 value: player,
