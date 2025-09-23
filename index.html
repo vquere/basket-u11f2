@@ -379,6 +379,13 @@
                         if (!matchData.address && gameDates[gameKey]?.address) {
                             matchData.address = gameDates[gameKey].address;
                         }
+                        // Ensure attendance is properly initialized
+                        if (!matchData.attendance) {
+                            matchData.attendance = players.reduce((acc, player) => {
+                                acc[player.name] = true;
+                                return acc;
+                            }, {});
+                        }
                         setMatchForm(matchData);
                     } else {
                         setMatchForm({
@@ -731,7 +738,7 @@
                                             ),
                                             React.createElement('button', {
                                                 onClick: () => {
-                                                    const newAttendance = { ...matchForm.attendance };
+                                                    const newAttendance = { ...(matchForm.attendance || {}) };
                                                     newAttendance[player.name] = !newAttendance[player.name];
                                                     setMatchForm({...matchForm, attendance: newAttendance});
                                                 },
@@ -765,7 +772,7 @@
                                 ),
                                 matchForm.attendance && React.createElement('p', null,
                                     React.createElement('span', { className: 'font-medium' }, 'Présentes : '),
-                                    `${Object.values(matchForm.attendance).filter(Boolean).length}/${players.length} joueuses`
+                                    `${Object.values(matchForm.attendance || {}).filter(Boolean).length}/${players.length} joueuses`
                                 ),
                                 matchForm.jerseyParent && React.createElement('p', null,
                                     React.createElement('span', { className: 'font-medium' }, 'Maillots : '),
