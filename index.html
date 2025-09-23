@@ -371,38 +371,63 @@
 
 
                 const handleGameClick = (gameKey) => {
-                    setSelectedDate(gameKey);
+                    try {
+                        console.log('Clicking game:', gameKey);
+                        console.log('Game data:', gameDates[gameKey]);
+                        console.log('Existing matches:', matches);
+                        console.log('Match data for', gameKey, ':', matches[gameKey]);
 
-                    if (matches[gameKey]) {
-                        // Ensure address is populated from gameDates if missing
-                        const matchData = { ...matches[gameKey] };
-                        if (!matchData.address && gameDates[gameKey]?.address) {
-                            matchData.address = gameDates[gameKey].address;
+                        setSelectedDate(gameKey);
+
+                        if (matches[gameKey]) {
+                            console.log('Using existing match data for', gameKey);
+                            // Ensure address is populated from gameDates if missing
+                            const matchData = { ...matches[gameKey] };
+                            console.log('Initial match data:', matchData);
+
+                            if (!matchData.address && gameDates[gameKey]?.address) {
+                                matchData.address = gameDates[gameKey].address;
+                                console.log('Added address from gameDates:', matchData.address);
+                            }
+
+                            // Ensure attendance is properly initialized
+                            if (!matchData.attendance) {
+                                console.log('Initializing attendance for', gameKey);
+                                matchData.attendance = players.reduce((acc, player) => {
+                                    acc[player.name] = true;
+                                    return acc;
+                                }, {});
+                            }
+
+                            console.log('Final match data:', matchData);
+                            setMatchForm(matchData);
+                        } else {
+                            console.log('Creating new match data for', gameKey);
+                            const newMatchData = {
+                                club: gameDates[gameKey]?.club || '',
+                                address: gameDates[gameKey]?.address || '',
+                                time: '',
+                                location: gameDates[gameKey]?.location || '',
+                                jerseyParent: '',
+                                drivers: ['', '', ''],
+                                snackParents: ['', ''],
+                                matchSheetReferee: '',
+                                matchSheetPlayers: ['', ''],
+                                attendance: players.reduce((acc, player) => {
+                                    acc[player.name] = true;
+                                    return acc;
+                                }, {})
+                            };
+                            console.log('New match data:', newMatchData);
+                            setMatchForm(newMatchData);
                         }
-                        // Ensure attendance is properly initialized
-                        if (!matchData.attendance) {
-                            matchData.attendance = players.reduce((acc, player) => {
-                                acc[player.name] = true;
-                                return acc;
-                            }, {});
-                        }
-                        setMatchForm(matchData);
-                    } else {
-                        setMatchForm({
-                            club: gameDates[gameKey]?.club || '',
-                            address: gameDates[gameKey]?.address || '',
-                            time: '',
-                            location: gameDates[gameKey]?.location || '',
-                            jerseyParent: '',
-                            drivers: ['', '', ''],
-                            snackParents: ['', ''],
-                            matchSheetReferee: '',
-                            matchSheetPlayers: ['', ''],
-                            attendance: players.reduce((acc, player) => {
-                                acc[player.name] = true;
-                                return acc;
-                            }, {})
-                        });
+                        console.log('Game click completed successfully for', gameKey);
+                    } catch (error) {
+                        console.error('Error in handleGameClick for', gameKey, ':', error);
+                        console.error('Error stack:', error.stack);
+                        setError(`Erreur lors du chargement de ${gameKey}: ${error.message}`);
+                        // Reset to safe state
+                        setSelectedDate(null);
                     }
                 };
 
@@ -810,6 +835,23 @@
 
                 return React.createElement(BasketTeamManager);
             }
+
+            // Global error handler for React errors
+            window.addEventListener('error', function(event) {
+                console.error('Global error caught:', event.error);
+                console.error('Error details:', {
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error
+                });
+                // Don't reload automatically, just log
+            });
+
+            window.addEventListener('unhandledrejection', function(event) {
+                console.error('Unhandled promise rejection:', event.reason);
+            });
 
             // Render the app
             try {
