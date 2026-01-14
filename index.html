@@ -189,90 +189,95 @@
                     'PACE CO-1': 'SALLE IROISE Avenue Le Brix, 35740 Pace',
                     'LIFFRE US-2': '15 RUE JULES VERNE, 35340 LIFFRE',
                     'BETTON CS-1': 'COMPLEXE DE LA TOUCHE (salle A) -  Rue de la Côte d\'Émeraude, 35830 Betton',
-                    'CESSON': 'Palais des sports Annexe'
+                    'CESSON': 'Palais des sports Annexe',
+                    'MORDELLES US': 'COMPLEXE SPORTIF - Rue du Stade, 35310 Mordelles',
+                    'RENNES STADE-1': 'GYMNASE COLETTE BESSON - 12 Boulevard Albert 1er, 35200 Rennes',
+                    'BREAL BASKET-3': 'COMPLEXE SPORTIF - Rue du Stade, 35470 Bréal-sous-Montfort',
+                    'CHARTRES DE BRETAGNE-1': 'COMPLEXE SPORTIF DE LA CONTERIE - Rue de la Conterie, 35131 Chartres-de-Bretagne',
+                    'CTC BRUZ-PONT-PEAN-2': 'COMPLEXE SPORTIF - Avenue Alphonse Legault, 35170 Bruz'
                 };
 
-                // Game dates and opponent info
+                // Game dates and opponent info - PHASE 2 (Cesson OC Basket)
                 const gameDates = {
                     'J1': {
-                        full: 'Samedi 27 Septembre',
-                        short: '27/09 - J1',
-                        club: 'LIFFRE US-2',
-                        location: 'Extérieur',
-                        address: clubAddresses['LIFFRE US-2'],
-                        date: new Date(2024, 8, 27) // September 27, 2024
+                        full: 'Vendredi 17 Janvier - 12h15',
+                        short: '17/01 - J1',
+                        club: 'MORDELLES US',
+                        location: 'Domicile',
+                        address: clubAddresses['CESSON'],
+                        date: new Date(2025, 0, 17) // January 17, 2025
                     },
                     'J2': {
-                        full: 'Samedi 4 Octobre',
-                        short: '04/10 - J2',
-                        club: 'PACE CO-1',
-                        location: 'Domicile',
-                        address: clubAddresses['CESSON'],
-                        date: new Date(2024, 9, 4) // October 4, 2024
+                        full: 'Vendredi 24 Janvier - 13h45',
+                        short: '24/01 - J2',
+                        club: 'RENNES STADE-1',
+                        location: 'Extérieur',
+                        address: clubAddresses['RENNES STADE-1'],
+                        date: new Date(2025, 0, 24) // January 24, 2025
                     },
                     'J3': {
-                        full: 'Pas de match',
-                        short: 'J3 - Repos',
-                        club: '',
-                        location: '',
-                        address: '',
-                        date: null
+                        full: 'Vendredi 31 Janvier - 11h00',
+                        short: '31/01 - J3',
+                        club: 'BREAL BASKET-3',
+                        location: 'Domicile',
+                        address: clubAddresses['CESSON'],
+                        date: new Date(2025, 0, 31) // January 31, 2025
                     },
                     'J4': {
-                        full: 'Samedi 18 Octobre',
-                        short: '18/10 - J4',
-                        club: 'BETTON CS-1',
+                        full: 'Vendredi 7 Février - 14h15',
+                        short: '07/02 - J4',
+                        club: 'CHARTRES DE BRETAGNE-1',
                         location: 'Extérieur',
-                        address: clubAddresses['BETTON CS-1'],
-                        date: new Date(2024, 9, 18) // October 18, 2024
+                        address: clubAddresses['CHARTRES DE BRETAGNE-1'],
+                        date: new Date(2025, 1, 7) // February 7, 2025
                     },
                     'J5': {
-                        full: 'Samedi 1er Novembre',
-                        short: '01/11 - J5',
-                        club: 'THORIGNE FOUILLARD BC',
+                        full: 'Vendredi 7 Mars - 12h15',
+                        short: '07/03 - J5',
+                        club: 'CTC BRUZ-PONT-PEAN-2',
                         location: 'Domicile',
                         address: clubAddresses['CESSON'],
-                        date: new Date(2024, 10, 1) // November 1, 2024
+                        date: new Date(2025, 2, 7) // March 7, 2025
                     },
                     'J6': {
-                        full: 'Samedi 8 Novembre',
-                        short: '08/11 - J6',
-                        club: 'LIFFRE US-2',
-                        location: 'Domicile',
-                        address: clubAddresses['CESSON'],
-                        date: new Date(2024, 10, 8) // November 8, 2024
+                        full: 'Vendredi 14 Mars - 11h30',
+                        short: '14/03 - J6',
+                        club: 'MORDELLES US',
+                        location: 'Extérieur',
+                        address: clubAddresses['MORDELLES US'],
+                        date: new Date(2025, 2, 14) // March 14, 2025
                     },
                     'J7': {
-                        full: 'Samedi 15 Novembre',
-                        short: '15/11 - J7',
-                        club: 'PACE CO-1',
-                        location: 'Extérieur',
-                        address: clubAddresses['PACE CO-1'],
-                        date: new Date(2024, 10, 15) // November 15, 2024
-                    },
-                    'J8': {
-                        full: 'Pas de match',
-                        short: 'J8 - Repos',
-                        club: '',
-                        location: '',
-                        address: '',
-                        date: null
-                    },
-                    'J9': {
-                        full: 'Samedi 29 Novembre',
-                        short: '29/11 - J9',
-                        club: 'BETTON CS-1',
+                        full: 'Vendredi 21 Mars - 11h00',
+                        short: '21/03 - J7',
+                        club: 'RENNES STADE-1',
                         location: 'Domicile',
                         address: clubAddresses['CESSON'],
-                        date: new Date(2024, 10, 29) // November 29, 2024
+                        date: new Date(2025, 2, 21) // March 21, 2025
+                    },
+                    'J8': {
+                        full: 'Vendredi 28 Mars - (horaire à confirmer)',
+                        short: '28/03 - J8',
+                        club: 'BREAL BASKET-3',
+                        location: 'Extérieur',
+                        address: clubAddresses['BREAL BASKET-3'],
+                        date: new Date(2025, 2, 28) // March 28, 2025
+                    },
+                    'J9': {
+                        full: 'Vendredi 9 Mai - 13h15',
+                        short: '09/05 - J9',
+                        club: 'CHARTRES DE BRETAGNE-1',
+                        location: 'Domicile',
+                        address: clubAddresses['CESSON'],
+                        date: new Date(2025, 4, 9) // May 9, 2025
                     },
                     'J10': {
-                        full: 'Samedi 6 Décembre',
-                        short: '06/12 - J10',
-                        club: 'THORIGNE FOUILLARD BC',
+                        full: 'Vendredi 16 Mai - (horaire à confirmer)',
+                        short: '16/05 - J10',
+                        club: 'CTC BRUZ-PONT-PEAN-2',
                         location: 'Extérieur',
-                        address: clubAddresses['THORIGNE FOUILLARD BC'],
-                        date: new Date(2024, 11, 6) // December 6, 2024
+                        address: clubAddresses['CTC BRUZ-PONT-PEAN-2'],
+                        date: new Date(2025, 4, 16) // May 16, 2025
                     }
                 };
 
@@ -531,7 +536,7 @@
                             ),
                             React.createElement('div', null,
                                 React.createElement('a', {
-                                    href: 'https://competitions.ffbb.com/ligues/bre/comites/0035/clubs/bre0035013/equipes/200000005186561',
+                                    href: 'https://competitions.ffbb.com/ligues/bre/comites/0035/clubs/bre0035013/equipes/200000005272916',
                                     target: '_blank',
                                     rel: 'noopener noreferrer',
                                     className: 'inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium'
@@ -844,12 +849,6 @@
 
             // Main App Component
             function App() {
-                const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-                if (!isAuthenticated) {
-                    return React.createElement(PasswordProtection, { onAuth: setIsAuthenticated });
-                }
-
                 return React.createElement(BasketTeamManager);
             }
 
